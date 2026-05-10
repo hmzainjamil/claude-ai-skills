@@ -1,11 +1,14 @@
 # claude-ai-skills
 
-Part of [claude-ai-system](https://github.com/mc/claude-ai-system) — Complete Claude AI automation portfolio.
+> **Active Claude Code skill snapshots** — the production-ready skill set powering the HMZ AI Agency.
 
-🧠 All 45 Claude AI skills — website builder, lead gen, ads strategy, SEO, agency pipeline
+Part of the [HMZ AI System](https://github.com/hmzainjamil/claude-ai-system).
 
-## Full System
-👉 [claude-ai-system](https://github.com/mc/claude-ai-system) — Giant combined repo with all components
+## Architecture
 
----
-*Auto-updated daily by github-sync LaunchAgent*
+11 core skills always active. 80+ skills in archive, auto-activated on keyword match via `skill-auto-activate`.
+
+**Core (always on):** caveman · optimize-commands · launch-optimized · compact-guard · compress · context-compression · context-window-management · summarize · find-skills · skill-router · token-turbo
+
+## Full archive → [hmz-skills-archive](https://github.com/hmzainjamil/hmz-skills-archive)
+**Main repo → [claude-ai-system](https://github.com/hmzainjamil/claude-ai-system)**
