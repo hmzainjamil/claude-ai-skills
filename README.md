@@ -1,208 +1,138 @@
 # claude-ai-skills
-200+ skills, zero loaded by default — maximum context efficiency
+Blockchain-gated Claude Code skill ecosystem — 13 always-on core skills + 100+ domain skills loaded only when needed, zero context bloat.
 
-![Skills](https://img.shields.io/badge/Claude_Code-Production_Skills-9B59B6?style=flat&labelColor=000) ![Total](https://img.shields.io/badge/total-9%2C565_in_archive-blue?style=flat&labelColor=555) ![Active](https://img.shields.io/badge/active_default-13_core-green?style=flat&labelColor=555) ![Gating](https://img.shields.io/badge/gating-blockchain_manifest-orange?style=flat&labelColor=555)
+![core](https://img.shields.io/badge/core_skills-13_always_on-blue?style=flat&labelColor=555) ![archive](https://img.shields.io/badge/archive-100%2B_dormant-gray?style=flat&labelColor=555) ![manifest](https://img.shields.io/badge/manifest-blockchain_gated-orange?style=flat&labelColor=555) ![activation](https://img.shields.io/badge/activation-auto_%2B_on_demand-green?style=flat&labelColor=555)
 
-Production Claude skill library — 9,565 skills in archive, 13 active by default, the rest dormant until a keyword fires. The blockchain manifest system ensures only relevant skills consume context tokens. Every skill has a trigger description, output contract, model preference, and version hash.
+[Concepts](#-concepts) · [Hot](#-hot) · [Architecture](#️-architecture) · [Tips](#-tips-and-tricks-24) · [Replaced](#️-startups--businesses) · [Stars](#star-history)
 
-[Gating System](#gating) · [Active Skills](#active) · [Activation Map](#map) · [Skill Format](#format) · [CLI](#cli) · [Tips](#tips) · [Gotchas](#gotchas)
+---
 
 ## 🧠 CONCEPTS
 
-| Concept | Location | Description |
-|---|---|---|
-| **Blockchain Manifest** | `~/.claude/SKILL_REGISTRY_INDEX.json` | Hash + trigger + status for every skill — read in ~50ms by hook |
-| **Active Skills** | `~/.claude/skills/` | Skills loaded into context — consume tokens |
-| **Archive** | `~/.claude/skills-archive/` | 9,565 dormant skills — zero token cost until activated |
-| **Auto-Activation** | `~/.claude/bin/skill-auto-activate` | UserPromptSubmit hook — keyword match → activation in <100ms |
-| **Skill File** | `SKILL.md` | Primary skill content — injected into context on activation |
-| **Manifest Entry** | `.skill.json` | Machine-readable metadata — trigger, version, model, conflicts |
-| **Metrics Log** | `~/.claude/metrics.log` | Per-prompt activation log — track what fires, what's unused |
+| Feature | Location | Description |
+|---------|----------|-------------|
+| [**Core Skills (13)**](skills-active/) | `~/.claude/skills/` | Always-on: `caveman` `compress` `context-compression` `compact-guard` `skill-router` `find-skills` `launch-optimized` `summarize` + 5 more — load at session start, never unload |
+| [**Skills Archive (100+)**](skills-archive/) | `~/.claude/skills-archive/` | Dormant domain skills — `ads-strategy` `geo` `legal` `all-agents` `apify-*` `market-*` — moved to active on demand |
+| [**skill-auto-activate**](automations/bin/skill-auto-activate) | `~/.claude/bin/skill-auto-activate` | UserPromptSubmit hook — keyword-matches every prompt → auto-loads matching domain skills before Claude responds |
+| [**Blockchain Manifest**](config/skills-lock.json) | `~/.claude/skills-lock.json` | JSON manifest tracking exactly which skills are active, when loaded, by what trigger — single source of truth |
+| [**SKILL.md Format**](skills-active/) | `<skill>/SKILL.md` | Frontmatter: `name` `description` `triggers` `tier` `dependencies` · Body: Purpose, Instructions, Examples, Gotchas |
+| [**Skill CLI**](automations/bin/) | `~/.claude/bin/skill-*` | `skill-on` `skill-off` `skill-search` `skill-status` `skill-reset` — full lifecycle management |
+| [**Auto-activation Map**](CLAUDE.md) | `CLAUDE.md` | ads/ppc → ads-* skills · seo/geo → geo-* · legal → legal-* · agent → all-agents · apify → apify-* |
 
-<a id="gating"></a>
-## ⚙️ GATING SYSTEM
+### 🔥 Hot
 
-```
-UserPromptSubmit fires → skill-auto-activate runs (50ms)
-  ↓
-1. skill-reset: deactivate all non-core skills
-2. Load SKILL_REGISTRY_INDEX.json
-3. Keyword match prompt against trigger descriptions
-4. Activate only matched skills (cp from archive → skills/)
-5. Log activation to metrics.log
-6. Claude sees prompt with new skills in context
+| Feature | Location | Description |
+|---------|----------|-------------|
+| [**context forking**](skills-active/context-compression/) | `context-compression/SKILL.md` | Skills with `context: fork` run in isolated subagent — main context never sees intermediate tool calls |
+| [**shell injection**](skills-active/) | `SKILL.md` | Embed `` !`command` `` in SKILL.md — shell output injected at invocation time, model sees result not script |
+| [**progressive disclosure**](skills-archive/) | `skills-archive/<name>/references/` | Skills use `references/` subdirectories — main SKILL.md stays small, deep content loaded on demand |
 
-Stop hook fires → skill-reset
-  ↓
-All non-core skills deactivated (rm from skills/)
-Context returns to baseline 13-skill state
-```
-
-**Context budget impact:**
-| State | Skills Active | Token Cost |
-|---|---|---|
-| Default | 13 core | ~10K tokens |
-| Ads task | 13 + 4 ads | ~18K tokens |
-| Full agency | 13 + 12 various | ~35K tokens |
-| Everything loaded | 9,565 | ~19M tokens (impossible) |
-
-<a id="active"></a>
-## 💡 ALWAYS-ACTIVE CORE SKILLS (13)
-
-| Skill | Token Cost | Purpose |
-|---|---|---|
-| `caveman` | ~500 | Compressed output — removes filler words, forces density |
-| `launch-optimized` | ~800 | Fast session startup — preloads common patterns |
-| `optimize-commands` | ~600 | Prefer native tools (Read/Write/Grep) over Bash |
-| `optimize-dgm-command` | ~500 | DigiMinds command optimization |
-| `compress` | ~400 | Output compression mandate |
-| `context-compression` | ~600 | Context window management |
-| `context-window-management` | ~500 | Overflow prevention, compact triggers |
-| `find-skills` | ~400 | Skill discovery tool — `skill-search <keyword>` |
-| `skill-router` | ~700 | Keyword → skill mapping logic |
-| `compact-guard` | ~400 | Compaction warning threshold |
-| `summarize` | ~500 | Smart summarization patterns |
-| `token-turbo` | ~400 | Token efficiency enforcement |
-| `auto-learn` | ~600 | Session learning → memory queue |
-
-<a id="map"></a>
-## 🔧 ACTIVATION MAP
-
-| Prompt Keywords | Skills Activated | Token Addition |
-|---|---|---|
-| `ads, ppc, meta, google, campaign, roas, cpa, ctr` | `ads-strategy, ads-copy, ads-creative, ads-keywords, ads-competitors, ads-audience, ads-funnel` | +12K |
-| `seo, geo, ranking, schema, crawl, backlink, organic` | `geo, geo-technical, geo-content, geo-schema, geo-citability` | +10K |
-| `legal, contract, nda, compliance, freelance, gdpr` | `legal, legal-review, legal-freelancer` | +8K |
-| `marketing, brand, email, funnel, copy, content` | `market, market-brand, market-copy, market-emails, market-funnel` | +10K |
-| `agency, client, proposal, pipeline, onboard` | `agency-digital-marketing, agency-pipeline, agency-onboard` | +8K |
-| `pdf, report, audit, reportlab, generate document` | `reportlab-pdf-master, ads-report-pdf` | +6K |
-| `agent, multi-agent, orchestrate, paperclip` | `all-agents` | +5K |
-| `apify, scrape, extract, actor, crawl` | `apify-actor-development` (archive) | +4K |
-
-<a id="format"></a>
-## 📋 SKILL FILE FORMAT
-
-Every skill in the archive follows this schema:
-
-**`SKILL.md`:**
-```markdown
----
-name: ads-strategy
-version: 2.1.0
-description: >
-  Activate when user asks about Google Ads, Meta Ads, PPC campaigns,
-  ROAS optimization, bidding strategies, or any paid media performance.
-trigger_keywords: [ads, ppc, google ads, meta ads, campaign, roas, cpa, ctr, bidding]
-model_preference: groq:llama3-70b
-conflicts: []
-requires: []
-token_estimate: 2800
 ---
 
-# Ads Strategy Skill
+## ⚙️ ARCHITECTURE
 
-[Expert domain content injected here — platform mechanics, bidding,
-audience targeting, creative frameworks, performance benchmarks,
-account structure, budget allocation, attribution models]
+```
+Every prompt →
+  UserPromptSubmit hook
+        │
+        ▼
+  skill-auto-activate
+        │
+   keyword match?
+   ├── YES → skill-on <name> → moves archive→active → updates manifest
+   └── NO  → core skills only (zero overhead)
 
-## Output format
-For every ads task: diagnosis → data needed → action → expected outcome
-Never give generic advice. Always ask for specific account data first.
+Session context:
+  ~/.claude/skills/    ← active skills loaded here
+  skills-lock.json     ← manifest: what's active + timestamp
 
-## Gotchas
-- Don't recommend Smart Bidding before confirming ≥30 conversions/month
-- Meta ROAS benchmarks vary by industry — always ask industry first
+After task:
+  skill-off <name> → moves active→archive → updates manifest
 ```
 
-**`.skill.json` (manifest entry):**
-```json
-{
-  "name": "ads-strategy",
-  "version": "2.1.0",
-  "hash": "sha256:abc123...",
-  "status": "archive",
-  "trigger_keywords": ["ads", "ppc", "google ads"],
-  "model_preference": "groq:llama3-70b",
-  "conflicts": [],
-  "token_estimate": 2800,
-  "activation_count": 847,
-  "last_activated": "2026-05-11"
-}
-```
+| Layer | File | Purpose |
+|-------|------|---------|
+| Core skills | `~/.claude/skills/<name>/SKILL.md` | Always loaded, never unloaded |
+| Domain skills | `~/.claude/skills-archive/<name>/SKILL.md` | Load on demand, unload after task |
+| Manifest | `~/.claude/skills-lock.json` | Blockchain-style active state tracking |
+| Hook | `~/.claude/bin/skill-auto-activate` | Auto-activation on every prompt |
+| CLI | `~/.claude/bin/skill-on/off/search/status/reset` | Manual lifecycle management |
 
-<a id="cli"></a>
-## 🛠 CLI REFERENCE
+---
 
-```bash
-# Find skills by keyword
-~/.claude/bin/skill-search "pdf report"
-# → reportlab-pdf-master, audit-generator
+## 💡 TIPS AND TRICKS (24)
 
-# Activate a skill
-~/.claude/bin/skill-on ads-strategy
+[Core](#tips-core) · [Domain](#tips-domain) · [Format](#tips-format) · [Auto](#tips-auto) · [Perf](#tips-perf) · [Debug](#tips-debug)
 
-# Deactivate a specific skill
-~/.claude/bin/skill-off ads-strategy
-
-# Check active skills
-~/.claude/bin/skill-status
-
-# Reset to core (Stop hook calls this automatically)
-~/.claude/bin/skill-reset
-
-# View skill metrics (what fires most)
-~/.claude/bin/skill-metrics
-# → ads-strategy: 847 activations | geo: 312 | reportlab-pdf-master: 203
-
-# Scan archive (find all skills with a trigger)
-~/.claude/bin/skill-scanner "code review"
-
-# Watch for skill changes (dev mode)
-~/.claude/bin/skill-watcher
-
-# Audit skill drift (what's active but shouldn't be)
-~/.claude/bin/skill-guardian
-```
-
-<a id="tips"></a>
-## 💡 TIPS
-
-■ **Skill Design (6)**
+<a id="tips-core"></a>■ **Core Skills (4)**
 
 | Tip | Source |
-|---|---|
-| Keep skill description field focused on the trigger question ("when should I fire?") not what the skill does | From Thariq @ Anthropic |
-| Add a Gotchas section to every skill — highest-signal content, where Claude most often fails in this domain | |
-| Don't give Claude prescriptive step-by-step in skills — give goals + constraints, let Claude route the execution | |
-| Skills are folders, not files — use `references/`, `examples/`, `scripts/` subdirs for progressive disclosure | |
-| Include dynamic shell injection: `` !`date +%Y-%m-%d` `` in SKILL.md — Claude sees the result at activation time | |
-| Test skills by checking `metrics.log` — if a skill never activates in 100 prompts, its trigger description is wrong | |
+|-----|--------|
+| `caveman` compresses all output — saves 30-40% tokens on every response | [caveman SKILL.md](skills-active/) |
+| `compact-guard` blocks context dumps before overflow — fires before `/compact` is needed | [compact-guard](skills-active/) |
+| `context-compression` and `context-window-management` work together — never disable either | [Core pair](skills-active/) |
+| `launch-optimized` runs once at session start — verifies RAM, Ollama, Paperclip, LaunchAgents | [launch-optimized](skills-active/) |
 
-■ **Context Management (4)**
+<a id="tips-domain"></a>■ **Domain Skills (5)**
 
-| Tip | Note |
-|---|---|
-| Never activate more than 5 non-core skills simultaneously — each adds 2-4K tokens, 5+ starts crowding CLAUDE.md | |
-| Skills with `requires: [other-skill]` should be loaded in dependency order — skill-on handles this | |
-| Skills with `conflicts: [ads-copy]` cannot be loaded simultaneously — keyword routing checks conflicts | |
-| Check context usage after activation: if > 60%, defer non-critical skills to next message | |
+| Tip | Source |
+|-----|--------|
+| Always `skill-off <name>` after task — loaded domain skills bloat context and slow responses | [Gating rule](CLAUDE.md) |
+| Never keep more than 3-4 domain skills active simultaneously | [Performance rule](CLAUDE.md) |
+| `skill-search "keyword"` finds the right skill before activating — avoids guessing | [skill-search](automations/bin/) |
+| `skill-status` shows manifest: active skills + load timestamps | [skill-status](automations/bin/) |
+| New skills go to archive first — test with `skill-on`, promote only if stable | [Dev workflow](skills-archive/) |
 
-■ **Archive Management (4)**
+<a id="tips-format"></a>■ **SKILL.md Format (5)**
 
-| Tip | Note |
-|---|---|
-| Skills in `skills-archive/` are never deleted — only archived. Search before creating new | `skill-search` first |
-| Version skills with semver — breaking changes increment major, improvements increment minor | `version: 2.1.0` |
-| The 9,565 skills in archive came from `hmz-antigravity-awesome-skills` — the community registry | |
-| `skill-guardian` should run weekly — finds orphaned skills (active but never triggered) | |
+| Tip | Source |
+|-----|--------|
+| `description` field = auto-match trigger — write for the model: "when should I fire?" | [Thariq](https://x.com/trq212) |
+| `triggers` list must be specific — broad keywords fire on wrong prompts | [Thariq](https://x.com/trq212) |
+| Build a Gotchas section in every skill — highest-signal content, captures failure patterns | [Thariq](https://x.com/trq212) |
+| Don't state the obvious in skills — focus on what pushes Claude out of default behavior | [Thariq](https://x.com/trq212) |
+| Include scripts and libraries in `references/` — Claude composes rather than reconstructs | [Thariq](https://x.com/trq212) |
 
-<a id="gotchas"></a>
-## ☠️ GOTCHAS
+<a id="tips-auto"></a>■ **Auto-Activation (4)**
 
-| Gotcha | Fix |
-|---|---|
-| `skill-auto-activate` adds ~100ms per prompt — acceptable for most tasks, not for rapid-fire loops | Add `SKIP_SKILL_ACTIVATE=1` env var for loops |
-| Activating a skill that's already active raises no error but causes duplicate context injection | `skill-status` first |
-| Skills with large `references/` subdirectories load slowly — progressive disclosure only works if Claude loads refs on demand | Keep SKILL.md under 3K tokens, put detail in `references/` |
-| `SKILL_REGISTRY_INDEX.json` grows unbounded — `skill-guardian` should prune unhashed entries monthly | |
-| Old skills in archive may reference removed models — `model_preference: gpt-3.5-turbo` now routes to GPT-4o-mini | Update model fields quarterly |
+| Tip | Source |
+|-----|--------|
+| `skill-auto-activate` fires on every UserPromptSubmit — check `settings.json` hook config | [Hook config](config/) |
+| Activation map: `ads\|ppc\|meta\|google ads` → ads-strategy+ads-copy+ads-creative+ads-keywords | [CLAUDE.md](CLAUDE.md) |
+| `seo\|geo\|ranking` → geo+geo-technical+geo-content+geo-schema | [CLAUDE.md](CLAUDE.md) |
+| `agent\|orchestrate\|multi-agent` → all-agents (full 50-agent roster) | [CLAUDE.md](CLAUDE.md) |
+
+<a id="tips-perf"></a>■ **Performance (3)**
+
+| Tip | Source |
+|-----|--------|
+| Active skill count < 5 = healthy · 5-8 = degraded · 8+ = reset immediately | [Performance threshold](CLAUDE.md) |
+| Long SKILL.md (>500 lines) slows context loading — use `references/` for deep content | [Size limit](CLAUDE.md) |
+| Core skills are pre-optimized — touch them only if something is broken | [Design principle](skills-active/) |
+
+<a id="tips-debug"></a>■ **Debug (3)**
+
+| Tip | Source |
+|-----|--------|
+| Skill not activating → check `triggers` list in frontmatter — add missing keyword | [Debug](automations/bin/) |
+| Manifest out of sync → `skill-reset` rebuilds from filesystem | [skill-reset](automations/bin/) |
+| Symlink conflict → delete symlink, re-create as directory with `SKILL.md` inside | [Git issue](automations/bin/github-sync) |
+
+---
+
+## ☠️ STARTUPS / BUSINESSES
+
+| Feature | Replaced |
+|-|-|
+| **Blockchain skill manifest** | [Continue.dev](https://continue.dev), [Cursor Rules](https://cursor.sh) — static, no gating or manifest |
+| **Auto-activation by keyword** | Manual `@mention` skill selection, copy-pasting instructions every prompt |
+| **On-demand domain loading** | Loading all rules always → context bloat → slower + more expensive |
+| **skill-off deactivation** | Forgetting to clear context → degraded performance over long sessions |
+| **Progressive disclosure (`references/`)** | Monolithic 2000-line instruction files |
+| **shell injection in SKILL.md** | Static snapshots that go stale immediately |
+
+---
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=hmzainjamil/claude-ai-skills&type=Date)](https://star-history.com/#hmzainjamil/claude-ai-skills&Date)
