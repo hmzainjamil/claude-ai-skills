@@ -1,162 +1,42 @@
-# claude-ai-skills
+# Claude AI Skills
 
-> 200+ Claude Code skills — blockchain-gated activation, auto-routing, Tier 0 model routing. Zero token waste — skills fire only when needed.
+A curated collection of Claude Code skill folders. Each top-level skill folder contains a `SKILL.md`; some include supporting scripts, data, or references. At the `main` tree checked for this update on 2026-10-02, 45 top-level folders contained `SKILL.md`. That is a repository snapshot count, not a runtime discovery or activation count.
 
-<p align="center">
+## Scope and status
 
-  <a href="https://github.com/hmzainjamil/claude-ai-skills">Repository</a> ·
-
-  <a href="https://github.com/hmzainjamil/claude-ai-skills/commits/main">Commits</a> ·
-
-  <a href="https://github.com/hmzainjamil/claude-ai-skills/issues">Issues</a>
-
-</p>
-
-<p align="center"><img alt="Visibility" src="https://img.shields.io/badge/visibility-public-blue"> <img alt="Lifecycle" src="https://img.shields.io/badge/lifecycle-active-success"> <img alt="Repository" src="https://img.shields.io/badge/documentation-deep%20editorial-lightgrey"></p>
-
-<!-- HMZ DEEP README v1 -->
-
-## At a glance
-
-| Field | Current state |
-
+| Item | Evidence |
 |---|---|
+| Content | Skill instructions, with selected helper files |
+| Expected format | Claude Code-oriented `SKILL.md` files; inspect each skill for its own requirements |
+| Runtime | Not included or verified by this repository |
+| Install/setup | No repository-wide installer or package manifest was found in the inspected tree |
+| Validation | No tests or runtime checks were run for this documentation change |
 
-| Visibility | public |
+## Browse the collection
 
-| Lifecycle | Active |
+- [Skill router](skill-router/SKILL.md): prompts for task context and recommends relevant skills
+- [UI/UX Pro Max](ui-ux-pro-max/SKILL.md): design guidance with searchable data and scripts
+- [Compress](compress/SKILL.md): skill instructions; helper CLI source is under `compress/scripts/`
+- [All Agents](all-agents/SKILL.md): orchestration guidance. Its setup document contains historical counts and integrations; verify those separately before relying on them
+- Other top-level folders group skills for web design, marketing, lead research, document creation, agent workflows, context management, and related tasks
 
-| Repository size | 352 KB |
+Read a skill's `SKILL.md` and any linked references before using it. Folder presence alone does not mean Claude Code has loaded or activated a skill.
 
-| Default branch | main |
+## Use
 
-| Documentation basis | Current repository README and source-visible evidence |
+1. Select a skill that matches the task.
+2. Read its instructions and check linked files, prerequisites, external services, and commands.
+3. Use it through a Claude Code workflow that supports the skill format, following the current Claude Code documentation.
+4. Verify results in the target environment. This repository does not claim automatic routing, model selection, cost savings, or successful execution.
 
-## Why this exists
+No bulk installer is provided. Copy only reviewed skill folders into the location supported by your Claude Code setup. Back up existing files first; avoid copying secrets, local configuration, or unrelated data.
 
-200+ Claude Code skills — blockchain-gated activation, auto-routing, Tier 0 model routing. Zero token waste — skills fire only when needed.
+## Security and provenance
 
-This README has been rebuilt around the repository itself. It separates documented capabilities from measured evidence and avoids treating roadmap ideas, copied templates, or external assumptions as implementation facts.
+Skills may recommend third-party services or actions. Review instructions before use, especially where a skill handles credentials, user data, network requests, file changes, or external actions. Keep credentials outside the repository.
 
-## 🧠 CONCEPTS
+Some skills describe external projects, integrations, or performance figures. Treat such claims as skill-authored guidance until verified from a current authoritative source. Preserve attribution and license terms when adapting content.
 
-| Feature | Location | Description |
-|---|---|---|
-| [Skills Core](bin/) | `bin/` | Primary automation scripts and tools for claude-ai-skills |
-| [MAE Integration](bin/mae-bridge.sh) | `bin/mae-bridge.sh` | 12-agent swarm on every task — automatic decompose, execute, synthesize |
-| [Tier 0 Routing](config/model-rules.json) | `config/model-rules.json` | Groq→Gemini→Bytez→DeepSeek — zero Claude tokens for sub-tasks |
-| [TCC Queue](tcc-routes/routes.json) | `tcc-routes/routes.json` | Task routing — 18 specialist agents, wave-batched for RAM safety |
-| [LaunchAgent](launchd/) | `launchd/` | macOS always-on service — KeepAlive=true, RunAtLoad=true |
-| [Hooks](hooks/) | `hooks/` | UserPromptSubmit, PostToolUse, Stop hooks wired for full automation |
-| [Skill Router](skills/skill-router/) | `skills/skill-router/` | Keyword → skill auto-activation on every prompt submission |
-| [n8n Workflows](workflows/) | `workflows/` | 8,159 workflow JSONs — grep before building anything from scratch |
-| [Paperclip Sync](bin/paperclip-sync.sh) | `bin/paperclip-sync.sh` | All outputs auto-saved to Paperclip AI company OS |
-| [Health Monitor](bin/health.sh) | `bin/health.sh` | Pings all endpoints — Slack alert + auto-restart on failure |
-| [Logs](logs/) | `logs/` | Timestamped run logs — searchable audit trail across sessions |
-| [Config](config/) | `config/` | API keys references, model routing rules, environment settings |
-| [Scripts](scripts/) | `scripts/` | Setup, teardown, testing, and benchmarking utility scripts |
-| [Templates](templates/) | `templates/` | Reusable output templates — PDF, Markdown, JSON, CSV |
-| [Docs](docs/) | `docs/` | Documentation, SOPs, architecture diagrams, runbooks |
-| [Tests](tests/) | `tests/` | Integration tests — verifies all API connections and workflows |
-| [Deployment](deploy/) | `deploy/` | Docker, LaunchAgent, systemd deployment configurations |
-| [Webhooks](webhooks/) | `webhooks/` | Inbound webhook handlers for external system triggers |
-| [Reports](reports/) | `reports/` | Auto-generated reports — ReportLab PDF, Markdown summaries |
-| [Cron](cron/) | `cron/` | Scheduled job configs — hourly, daily, weekly automation triggers |
-| [API Clients](api/) | `api/` | Thin API client wrappers for all external service integrations |
-| [Data](data/) | `data/` | Input datasets, lookup tables, static reference data files |
-| [Archive](archive/) | `archive/` | Historical outputs and versioned artifacts — never deleted |
-| [Backup](backup/) | `backup/` | Backup configs and restore scripts for all critical data |
-| [CLAUDE.md](CLAUDE.md) | `CLAUDE.md` | Repo-specific rules injected into every Claude session context |
+## Maintenance
 
-## ⚙️ ARCHITECTURE
-
-```
-┌────────────────────────────────────────────────────────────────┐
-│                HMZ AI STACK — TIER 0 ARCHITECTURE              │
-│                                                                │
-│  Every Prompt → skill-router → Tier 0 model → MAE swarm       │
-│                                                                │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-│  │  Ollama  │  │  Groq    │  │ Gemini   │  │  Bytez   │     │
-│  │ GPU local│  │  70b     │  │  Flash   │  │ 100+ LLM │     │
-│  │  $0/run  │  │  free    │  │  free    │  │  free    │     │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘     │
-│                         │                                      │
-│             MAE 12-agent swarm (TCC queue)                     │
-│             Groq-70B synthesis → final output                  │
-│                         │                                      │
-│  OpenCLI (90 adapters) · Composio (3000+ actions) · n8n       │
-│  Paperclip OS · MEMORY.md · ~/.claude/tcc-logs/               │
-└────────────────────────────────────────────────────────────────┘
-```
-
-| Layer | Technology | Cost |
-|---|---|---|
-| Local inference | Ollama + GPT4All (7 models) | $0 forever |
-| Cloud burst | Groq + Gemini + Bytez | $0 free tiers |
-| Orchestration | MAE + TCC + llm-burst | $0 (uses Tier 0) |
-| Automation | n8n 8,159 workflows | Self-hosted |
-| Memory | Paperclip AI + MEMORY.md | Zero-human |
-| Site automation | OpenCLI 90+ adapters | $0 no LLM cost |
-| SaaS actions | Composio 3000+ tools | Free tier |
-
-## 🚀 Quick Start
-
-```bash
-# Run 12-agent MAE swarm on any goal
-mae run "write a cold email sequence for B2B SaaS"
-
-# Fire tasks in parallel
-tcc blast "audit Google Ads" "spy Meta ads" "draft LinkedIn post"
-
-# Full agency daily ops (all divisions automated)
-mae daily
-
-# OpenCLI — scrape any site without LLM cost
-opencli linkedin search --query "SaaS founder"
-
-# Composio — execute any SaaS action
-composio execute hubspot create-contact --name "John" --email "j@co.com"
-
-# System status
-tcc-dashboard
-```
-
-## Usage
-
-No verified runtime command was available in the current README. Commands should be taken from the repository's executable entry points and package configuration.
-
-## ⚡ CONFIGURATION REFERENCE
-
-| Variable | Location | Value / Purpose |
-|---|---|---|
-| `GROQ_API_KEY` | `~/.zshrc` | Groq llama3-70b — fastest free cloud LLM |
-| `OPENROUTER_API_KEY` | `~/.zshrc` | OpenRouter — 100+ models via one endpoint |
-| `GOOGLE_API_KEY` | `~/.zshrc` | Gemini 2.0 Flash — 1M context free tier |
-| `BYTEZ_API_KEY` | `~/.zshrc` | <redacted secret> |
-| `DASHSCOPE_API_KEY` | `~/.zshrc` | Alibaba DashScope — Qwen models |
-| `LUMA_API_KEY` | `~/.zshrc` | Luma uni-1 image generation API |
-| `ARCADS_API_KEY` | `~/.zshrc` | Arcads AI actor video generation |
-| `AIRTABLE_API_KEY` | `~/.zshrc` | Airtable data automation API |
-| `NODE_PATH` | `~/.zshrc` | <local path> |
-| `OLLAMA_HOST` | `~/.zshrc` | http://localhost:11434 (always-on) |
-| `OLLAMA_NUM_GPU` | `LaunchAgent` | 1 — Metal GPU acceleration |
-| `N8N_HOST` | `~/.zshrc` | http://localhost:5678 (n8n server) |
-| `COMPOSIO_API_KEY` | `~/.zshrc` | Composio tool actions API |
-| `PAPERCLIP_URL` | `~/.zshrc` | http://127.0.0.1:3100 (company OS) |
-
-## Validation and evidence
-
-No dedicated test or evaluation section was available in the current README. Performance, production readiness, and outcome claims are therefore not asserted here.
-
-## Limitations
-
-- This README reports the current documented state and does not convert planned functionality into completed functionality.
-
-- Quantitative claims should be backed by reproducible repository evidence or linked test artifacts.
-
-- External service behavior and current provider pricing or limits are not inferred from repository documentation.
-
-## Maintainer
-
-[hmzainjamil](https://github.com/hmzainjamil)
+When a skill changes, update its own instructions and links in the same change. Record tested commands only after running them, with the environment and date. Regenerate this snapshot count from the Git tree when updating the README.
