@@ -14,6 +14,8 @@ A curated collection of Claude Code skill folders. Each top-level skill folder c
 
 ## Browse the collection
 
+- [Documentation index](docs/README.md): repository guides and supporting documentation
+
 - [Skill router](skill-router/SKILL.md): prompts for task context and recommends relevant skills
 - [UI/UX Pro Max](ui-ux-pro-max/SKILL.md): design guidance with searchable data and scripts
 - [Compress](compress/SKILL.md): skill instructions; helper CLI source is under `compress/scripts/`
